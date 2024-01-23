@@ -245,7 +245,6 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
   time.sleep(5)
   
   print("	runningAi1 " + str(Id1))
-
   p1 = runAi( Deck = AI1Deck, 
               Name = AI1Deck,
               Hand = 2,
@@ -259,6 +258,7 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
               Id = Id1
             )
   time.sleep(1)
+
   print("	runningAi2 "+ str(Id2))
   p2 = runAi(Deck = AI2Deck, 
               Name = AI2Deck,
