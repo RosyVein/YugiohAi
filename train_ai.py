@@ -23,7 +23,6 @@ import multiprocessing
 import read_data_tensorflow as read_game_data
 import get_action_weights_tensorflow as get_action_weights
 
-
 #The Deck name and location	
 AI1Deck = 'Random1'
 AI2Deck = 'Random2'
@@ -32,8 +31,8 @@ AIMaster = 'Master'
 deck1 = 'AI_Random1.ydk'
 deck2 = 'AI_Random2.ydk'
 
-totalGames = 100
-generations = 10
+totalGames = 0
+generations = 30
 
 rolloutCount = 1
 isFirst = True
@@ -161,7 +160,7 @@ def runAi(Deck = "Random1",
   return p
 
 def shuffle_deck(deck_name):
-  filePath = os.getcwd() + '/WindBot-Ignite-master/bin/Debug/Decks/'+ deck_name 
+  filePath = os.getcwd() + '/WindBot-Ignite-master/bin/debug/Decks/'+ deck_name 
 
   f = open(filePath,"r")
   main = []
@@ -210,14 +209,14 @@ def shuffle_deck(deck_name):
   f.close()
 
 def setup():
-  global AI2Deck, AI2Deck, isTraining, totalGames
+  global AI1Deck, AI2Deck, isTraining, totalGames
 
   if reset:
     if isTraining:
       resetDB()
     #shuffle_deck(deck1)
-    src_dir=os.getcwd() + '/WindBot-Ignite-master/bin/Debug/Decks/' + deck1
-    dst_dir=os.getcwd() + '/WindBot-Ignite-master/bin/Debug/Decks/' + deck2
+    src_dir=os.getcwd() + '/WindBot-Ignite-master/bin/debug/Decks/' + deck1
+    dst_dir=os.getcwd() + '/WindBot-Ignite-master/bin/debug/Decks/' + deck2
     shutil.copy(src_dir,dst_dir)
 
   resetYgoPro()
@@ -278,19 +277,17 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
     time.sleep(1)
   
   if (not (p1.poll() == None or p2.poll() == None)):
-    print("	WARNING! ai is not running")
+    print("	WARNING! AI is not running")
 
-  timer = 0
-  timeout = 30 * 60 # Length of run
-  
-  # print(p1.pid)
-  # print(p2.pid)
-  #make sure the game does not run longer than needed
-  #ends the ygopro program as soon as the ais are done. Ais play faster than what you see.
+  timeout = 100
+  AIstarttime = time.time()
   
   while (p1.poll() == None and p2.poll() == None):
+    time.sleep(1)
+    current_time = time.time()
+    if current_time - AIstarttime > timeout:
+      break
     continue
-     
      
   if platform == "linux" or platform == "linux2":
     os.system("kill -9 " + str(g.pid))
@@ -298,6 +295,7 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
     os.system("	TASKKILL /F /IM ygopro.exe")
   
   end = time.time()
+  totalGames += 1
 
   print("Time Past:" + str(datetime.timedelta(seconds=int(end - start))))
   print("Average Game Time:"+str(datetime.timedelta(seconds=int((end - start)/(totalGames)))))
