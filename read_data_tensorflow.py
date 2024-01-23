@@ -136,7 +136,7 @@ def read_data():
   output_length = len(action_list)
   print("length")
   print("input"+str(input_length))
-  print("outpuy"+str(output_length))
+  print("output"+str(output_length))
   print("records" +str(len(play_record)))
 
   if (len(action_list) + len(compare_to)) == 0:
