@@ -1,1 +1,1 @@
-#.\WindBot.exe Deck=Master Hand=3 Name=Master
+# .\WindBot.exe Deck=Master Hand=3 Name=Master

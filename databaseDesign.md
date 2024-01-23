@@ -1,11 +1,16 @@
 # Database Design
+
 This is the documentation on how the database stores data.
+
 ## cardList
+
 The list of cards in the card pool.
 
 * Id, unique, stores the card id
 * Name, the name of the cardi id
+
 ## cardRelated
+
 Stores the relationship between cards within a deck.
 
 * id, the id of a card in the deck.
@@ -26,6 +31,7 @@ Other Columns, use SQL Query
 * weight = round(wins*wins*1.0/gamesPlayed,2)
 
 ## cardCounter
+
 The relationship comparing to see how many times a card wins against another card.
 
 * id, a card in your deck that was played in the game
@@ -34,6 +40,7 @@ The relationship comparing to see how many times a card wins against another car
 * games, how many games they have played against each other.
 
 ## playCard
+
 The data to see if the ai should play a card or not
 
 * id, the card to check if it should play

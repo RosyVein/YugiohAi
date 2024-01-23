@@ -10,6 +10,7 @@ specifically prepared and compiled as individual executors.
 Written in C# targeting .NET Framework 4. Use Visual Studio 2015 or newer.
 
 ## Available decks and executors
+
 * ABC
 * Altergeist
 * Blue-Eyes
@@ -55,6 +56,7 @@ For new additions, please make sure you add new code files to both the WindBot
 and libWindbot projects. You need only worry about testing the WindBot project.
 
 ## Other architectural changes from upstream
+
 [Old README](https://github.com/ProjectIgnis/windbot/tree/master/README-old.md),
 including some command-line documentation.
 
@@ -83,11 +85,11 @@ bad day otherwise and this has been kept concise.
   ensure the SDK, NDK, and JDK all point to valid paths. They should be set
   correctly by default. You can use Microsoft-provided installations or share
   these with Android Studio.
-  - In addition to the default Android SDK tools, install Platform 24
-    (Android 7.0). No newer platform works.
-  - The NDK path must point to an r15c installation. Visual Studio 2017 should
-    already have installed it somewhere but you can download this unsupported
-    old version from the Android developer site. No newer NDK works.
+    - In addition to the default Android SDK tools, install Platform 24
+      (Android 7.0). No newer platform works.
+    - The NDK path must point to an r15c installation. Visual Studio 2017 should
+      already have installed it somewhere but you can download this unsupported
+      old version from the Android developer site. No newer NDK works.
 
 These are all quirks of the 0.4.0 NuGet version of
 [Embeddinator-4000](https://github.com/mono/Embeddinator-4000), used to

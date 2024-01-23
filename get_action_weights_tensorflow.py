@@ -35,55 +35,58 @@ action_data = None
 compare_count = 0
 action_count = 0
 
+
 def load_data():
-  global action_data, compare_count, action_count
+    global action_data, compare_count, action_count
 
-  if os.path.exists("data.h5"):
-    action_data = load_model('data.h5')
+    if os.path.exists("data.h5"):
+        action_data = load_model('data.h5')
 
-  conn = sqlite3.connect(os.getcwd() +'/cardData.cdb')
-  c = conn.cursor()
-  c.execute('SELECT max(rowid) FROM L_CompareTo')
-  compare_count = c.fetchone()[0]
-  c.execute('SELECT max(rowid) FROM L_ActionList')
-  action_count = c.fetchone()[0]
-  conn.close()
+    conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
+    c = conn.cursor()
+    c.execute('SELECT max(rowid) FROM L_CompareTo')
+    compare_count = c.fetchone()[0]
+    c.execute('SELECT max(rowid) FROM L_ActionList')
+    action_count = c.fetchone()[0]
+    conn.close()
 
-  print("Compare Count:" + str(compare_count))
-  print("Action Count:" + str(action_count))
+    print("Compare Count:" + str(compare_count))
+    print("Action Count:" + str(action_count))
+
 
 def get_predictions(data: typing.List[int], actions: typing.List[int], other: typing.List[int]):
-  global action_data, compare_count
-  if (action_data == None):
-    return []
-  
-  input_length = action_count + compare_count + 2
+    global action_data, compare_count
+    if (action_data == None):
+        return []
 
-  input_list = [0] * input_length
+    input_length = action_count + compare_count + 2
 
-  for id in data:
-    index = int(id) - 1 + action_count
-    if (index < len(input_list) and index >= 0):
-      input_list[index] = 1
+    input_list = [0] * input_length
 
-  for i in range(len(other)):
-    index = i + action_count + compare_count
-    if (index < len(input_list) and index >= 0):
-      input_list[index] = int(other[i])
+    for id in data:
+        index = int(id) - 1 + action_count
+        if (index < len(input_list) and index >= 0):
+            input_list[index] = 1
 
-  for id in actions:
-    index = int(id) - 1
-    if (index < len(input_list) and index >= 0):
-      input_list[index] = 1
+    for i in range(len(other)):
+        index = i + action_count + compare_count
+        if (index < len(input_list) and index >= 0):
+            input_list[index] = int(other[i])
 
-  result = action_data.predict([input_list], batch_size=1)
-  print("Estimate:" + str(np.argmax(result)) + " " + str(len(result[0])))
-  ind = np.argpartition(result, -4)[0][-4:]
-  index = ind[np.argsort(result[0][ind])]
-  print("Top k:")
-  for i in index:
-    print(str(i) + ":" + str(result[0][i]))
-  return result[0].tolist()
+    for id in actions:
+        index = int(id) - 1
+        if (index < len(input_list) and index >= 0):
+            input_list[index] = 1
+
+    result = action_data.predict([input_list], batch_size=1)
+    print("Estimate:" + str(np.argmax(result)) + " " + str(len(result[0])))
+    ind = np.argpartition(result, -4)[0][-4:]
+    index = ind[np.argsort(result[0][ind])]
+    print("Top k:")
+    for i in index:
+        print(str(i) + ":" + str(result[0][i]))
+    return result[0].tolist()
+
 
 # def run_command_line():
 #   while True:
@@ -109,7 +112,7 @@ class handler(BaseHTTPRequestHandler):
         predictions = get_predictions(data, actions, other)
 
         self.send_response(200)
-        self.send_header('Content-type','text/html')
+        self.send_header('Content-type', 'text/html')
         self.end_headers()
 
         # print(predictions)
@@ -117,14 +120,16 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(bytes(message, "utf8"))
 
     def log_message(self, format: str, *args: Any) -> None:
-      return
-      return super().log_message(format, *args)
+        return
+        return super().log_message(format, *args)
+
 
 def run_server():
-  with HTTPServer(('', 8000), handler) as server:
-      server.serve_forever()
+    with HTTPServer(('', 8000), handler) as server:
+        server.serve_forever()
+
 
 if __name__ == "__main__":
-  load_data()
-  #run_command_line()
-  run_server()
+    load_data()
+    # run_command_line()
+    run_server()

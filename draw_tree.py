@@ -5,8 +5,7 @@ import sqlite3
 from pyvis.network import Network
 import networkx as nx
 
-
-conn = sqlite3.connect(os.getcwd() +'/cardData.cdb')
+conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
 c = conn.cursor()
 
 c.execute('SELECT Count(Visited) FROM MCST WHERE CardId != \"Result\" and Visited > 0')
@@ -31,18 +30,18 @@ for record in records:
     isTraining = record[8]
 
     if visited < 1:
-      continue
+        continue
 
     activation = reward + const * math.sqrt((math.log(total + 1) + 1) / visited)
     activation = min(activation, 25)
     nx_graph.add_node(rowid, label=f'{rowid} {isFirst} {isTraining} {action} {cardid}', group=1)
     if parentid != -4:
-      nx_graph.add_edge(parentid, rowid, weight=activation, group=2)
+        nx_graph.add_edge(parentid, rowid, weight=activation, group=2)
     if childid != -4:
-      nx_graph.add_edge(rowid, childid, weight=activation, group=3)
+        nx_graph.add_edge(rowid, childid, weight=activation, group=3)
 
     if (action == "GoToEndPhase"):
-      group_count += 1
+        group_count += 1
 
 # Get Best average moves?
 # c.execute("Select cardId,Action, SUM(Reward) as r,SUM(Visited) as v from MCST WHERE IsTraining='False' group by cardid, action order by cardid, action")
@@ -51,7 +50,7 @@ for record in records:
 #     cardid = record[0]
 #     action = record[1]
 #     reward = record[2]
-    
+
 #     visited =record[3]
 #     #const = 0
 

@@ -5,8 +5,7 @@ import sqlite3
 from pyvis.network import Network
 import networkx as nx
 
-
-conn = sqlite3.connect(os.getcwd() +'/cardData.cdb')
+conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
 c = conn.cursor()
 
 c.execute('SELECT SUM(Visited) FROM WeightTree')
@@ -29,16 +28,16 @@ for record in records:
     visited = max(0.0001, record[4])
 
     if visited < 2:
-      continue
+        continue
 
     activation = reward + const * math.sqrt((math.log(total + 1) + 1) / visited)
-    activation = round( min(activation, 25) * 100 )/ 100
+    activation = round(min(activation, 25) * 100) / 100
 
     nodeKey = cardid + action
     if nodeKey not in NodeIds:
-      NodeIds[nodeKey] = NodeIdCount
-      nx_graph.add_node(NodeIdCount, label=f'{action} {cardid}', title=f'{action} {cardid}', group=1)
-      NodeIdCount += 1
+        NodeIds[nodeKey] = NodeIdCount
+        nx_graph.add_node(NodeIdCount, label=f'{action} {cardid}', title=f'{action} {cardid}', group=1)
+        NodeIdCount += 1
 
     parentid = NodeIds[nodeKey]
 
@@ -46,8 +45,8 @@ for record in records:
     NodeIdCount += 1
 
     nx_graph.add_edge(parentid, rowid, label=f'{verify}', weight=activation, group=2)
-    
-    print(f"{activation}| {cardid} | {action} | {verify}") 
+
+    print(f"{activation}| {cardid} | {action} | {verify}")
 
 c.close()
 
