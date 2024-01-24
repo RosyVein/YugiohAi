@@ -31,7 +31,7 @@ AIMaster = 'Master'
 deck1 = 'AI_Random1.ydk'
 deck2 = 'AI_Random2.ydk'
 
-totalGames = 0
+totalGames = 30 # why use this
 generations = 30
 
 rolloutCount = 1
@@ -300,7 +300,6 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
         os.system("	TASKKILL /F /IM ygopro.exe")
 
     end = time.time()
-    totalGames += 1
 
     print("Time Past:" + str(datetime.timedelta(seconds=int(end - start))))
     print("Average Game Time:" + str(datetime.timedelta(seconds=int((end - start) / (totalGames)))))

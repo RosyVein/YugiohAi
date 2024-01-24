@@ -90,7 +90,7 @@ class PlayRecord:
 def deleteData():
     global TrainData, ShowData
     if (TrainData):
-        os.remove("data.h5")
+        os.remove("data.keras")
 
 
 def read_data():
@@ -133,8 +133,7 @@ def read_data():
             field_state[id] = []
         field_state[id].append(FieldState(record[0], record[1], record[2]))
 
-    c.execute(
-        'SELECT rowid, GameId, TurnId, ActionId, CurP1Hand, CurP1Field, CurP2Hand, CurP2Field, PostP1Hand, PostP1Field, PostP2Hand, PostP2Field, Result FROM L_PlayRecord')
+    c.execute('SELECT rowid, GameId, TurnId, ActionId, CurP1Hand, CurP1Field, CurP2Hand, CurP2Field, PostP1Hand, PostP1Field, PostP2Hand, PostP2Field, Result FROM L_PlayRecord')
     records = c.fetchall()
     for record in records:
         play_record[record[0]] = PlayRecord(record[0], record[1], record[2], record[3], record[4], record[5], record[6],
@@ -143,9 +142,9 @@ def read_data():
     input_length = len(action_list) + len(compare_to) + 2  # Turn id, action id
     output_length = len(action_list)
     print("length")
-    print("input" + str(input_length))
-    print("output" + str(output_length))
-    print("records" + str(len(play_record)))
+    print("input: " + str(input_length))
+    print("output: " + str(output_length))
+    print("records: " + str(len(play_record)))
 
     if (len(action_list) + len(compare_to)) == 0:
         return
@@ -160,8 +159,8 @@ def read_data():
         model: Sequential = None
         critic: Sequential = None
 
-        if os.path.exists("data.h5"):
-            model = load_model('data.h5')
+        if os.path.exists("data.keras"):
+            model = load_model('data.keras')
         # if os.path.exists("critic.h5"):
         #   critic = load_model('critic.h5')
 
@@ -286,7 +285,7 @@ def read_data():
 
         # All field states at the end
         for state in field_state[id]:
-            input_list[state.compareId - 1 + len(action_list)] = 1
+            input_list[len(action_list) + state.compareId - 1] = 1
 
         posssible_actions = action_state[history_id]
         # All possible actions as input
@@ -305,8 +304,8 @@ def read_data():
         input_list[len(action_list) + len(compare_to)] = play_record[history_id].actionId
         input_list[len(action_list) + len(compare_to) + 1] = play_record[history_id].turnId
 
-        # if next_phase:
-        #   continue
+        # no use now, it seems like that it want to skip some move that don't involve any card
+        #  if next_phase: continue
 
         data.append(input_list)
         answer.append(output_list)
@@ -339,11 +338,11 @@ def read_data():
         model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
 
         model.fit(np.asarray(x_train), np.asarray(y_train), epochs=30, batch_size=min(len(y_train), 10), verbose=1)
-        model.evaluate(x_test, y_test, batch_size=len(y_test))
+        model.evaluate(x_test, y_test, batch_size=len(y_test)) # todo: record the acc for each gen
 
-        model.save('data.h5')
+        model.save('data.keras')
         del model
-        model = load_model('data.h5')
+        model = load_model('data.keras')
 
         # Critic
         # model = Sequential()
