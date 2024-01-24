@@ -39,8 +39,8 @@ action_count = 0
 def load_data():
     global action_data, compare_count, action_count
 
-    if os.path.exists("data.h5"):
-        action_data = load_model('data.h5')
+    if os.path.exists("data.keras"):
+        action_data = load_model('data.keras')
 
     conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
     c = conn.cursor()
