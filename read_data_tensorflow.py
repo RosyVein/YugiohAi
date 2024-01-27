@@ -22,6 +22,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 
 import tensorflow as tf
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.models import load_model
@@ -32,7 +33,6 @@ from pathlib import Path
 
 TrainData = not (len(sys.argv) > 1 and ("--s" in sys.argv or "-s" in sys.argv))
 ShowData = True
-
 
 class Action:
     def __init__(self, id, name, action) -> None:
@@ -322,23 +322,42 @@ def read_data():
             xc_train = xc_test = data
             yc_train = yc_test = critic_answer
         else:
-            x_train, x_test, y_train, y_test = train_test_split(data, answer, test_size=0.1)
-            xc_train, xc_test, yc_train, yc_test = train_test_split(data, critic_answer, test_size=0.1)
+            x_train, x_test, y_train, y_test = train_test_split(data, answer, test_size=0.3)
+            xc_train, xc_test, yc_train, yc_test = train_test_split(data, critic_answer, test_size=0.3)
+
+        batch_size = 64
+        epochs = 500
 
         model = Sequential()
-        model.add(Dense(units=200, activation='relu', input_dim=input_length, kernel_initializer='random_uniform',
-                        bias_initializer='zeros'))
-        model.add(Dropout(0.2))
-        # model.add(Dense(units=500, activation='relu', kernel_initializer='random_uniform', bias_initializer='zeros'))
-        # model.add(Dense(units=500, activation='relu', kernel_initializer='random_uniform', bias_initializer='zeros'))
-        # model.add(Dense(units=250, activation='relu', kernel_initializer='random_uniform', bias_initializer='zeros'))
-        model.add(Dense(units=100, activation='relu', kernel_initializer='random_uniform', bias_initializer='zeros'))
-        model.add(Dropout(0.2))
-        model.add(Dense(output_length + 1, kernel_initializer='random_uniform', bias_initializer='zeros'))
-        model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
+        model.add(Dense(256, activation='relu', input_shape=(input_length,)))
+        model.add(Dropout(0.4))
+        model.add(Dense(128, activation='relu'))
+        model.add(Dropout(0.4))
+        model.add(Dense(output_length + 1, activation='sigmoid'))
 
-        model.fit(np.asarray(x_train), np.asarray(y_train), epochs=30, batch_size=min(len(y_train), 10), verbose=1)
-        model.evaluate(x_test, y_test, batch_size=len(y_test)) # todo: record the acc for each gen
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        early_stopping = EarlyStopping(monitor='val_loss', patience=10)
+        reduce_lr = ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.2,
+            patience=5,
+            min_lr=0.001)
+
+        history = model.fit(
+            x_train, y_train,
+            epochs=epochs,
+            batch_size=batch_size,
+            validation_data=(x_test, y_test),
+            callbacks=[early_stopping, reduce_lr]
+        )
+
+        score_train = model.evaluate(x_train, y_train, verbose=1)
+        score_test = model.evaluate(x_test, y_test, verbose=1)
+
+        # todo: record the acc for each gen
+        print("construction_phase accuracy=", score_train[1], ",loss=", score_train[0])
+        print("test_phase accuracy=", score_test[1], ",loss=", score_test[0])
 
         model.save('data.keras')
         del model
@@ -346,17 +365,30 @@ def read_data():
 
         # Critic
         # model = Sequential()
-        # model.add(Dense(units=100, activation='relu', input_dim=input_length, kernel_initializer='random_uniform', bias_initializer='zeros'))
-        # model.add(Dense(units=50, activation='relu', kernel_initializer='random_uniform', bias_initializer='zeros'))
-        # model.add(Dense(1, kernel_initializer='random_uniform', bias_initializer='zeros'))
-        # model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
+        # model.add(Dense(256, activation='relu', input_shape=(input_length,)))
+        # model.add(Dropout(0.4))
+        # model.add(Dense(128, activation='relu'))
+        # model.add(Dropout(0.4))
+        # model.add(Dense(output_length + 1, activation='sigmoid'))
 
-        # model.fit(np.asarray(xc_train), np.asarray(yc_train), epochs=20, batch_size=min(len(yc_train),120), verbose=1)
-        # model.evaluate(xc_test, yc_test, batch_size= len(yc_test))
+        # model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-        # model.save('critic.h5')
+        # history = model.fit(
+        #     xc_train, yc_train,
+        #     epochs=epochs,
+        #     batch_size=batch_size,
+        #     validation_data=(xc_test, yc_test),
+        #     callbacks=[early_stopping, reduce_lr]
+        # )
+
+        # score_train = model.evaluate(xc_train, yc_train, verbose=1)
+        # score_test = model.evaluate(xc_test, yc_test, verbose=1)
+        # print("construction_phase accuracy=", score_train[1], ",loss=", score_train[0])
+        # print("test_phase accuracy=", score_test[1], ",loss=", score_test[0])
+
+        # model.save('critic.keras')
         # del model
-        # model = load_model('critic.h5')
+        # model = load_model('critic.keras')
 
     conn.commit()
     conn.close()
