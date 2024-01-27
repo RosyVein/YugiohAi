@@ -1,27 +1,26 @@
 import datetime
 import glob
 import math
+import multiprocessing
 import os
+import random
 import shutil
 import sqlite3
 import string
 import subprocess
 import sys
-from threading import Thread
-import time
-import random
-import typing
-from sys import platform
-from pathlib import Path
-
 import tensorflow as tf
-from keras.models import Sequential
+import time
+import typing
 from keras.layers import Dense, Flatten
+from keras.models import Sequential
 from keras.models import load_model
+from pathlib import Path
+from sys import platform
+from threading import Thread
 
-import multiprocessing
-import read_data_tensorflow as read_game_data
 import get_action_weights_tensorflow as get_action_weights
+import read_data_tensorflow as read_game_data
 
 # The Deck name and location
 AI1Deck = 'Random1'
@@ -31,7 +30,7 @@ AIMaster = 'Master'
 deck1 = 'AI_Random1.ydk'
 deck2 = 'AI_Random2.ydk'
 
-totalGames = 30 # why use this
+totalGames = 30  # why use this
 generations = 30
 
 rolloutCount = 1

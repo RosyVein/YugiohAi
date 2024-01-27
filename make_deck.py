@@ -1,8 +1,9 @@
-import sys, os
+import os
 import random
-from random import randrange
-from collections import OrderedDict
 import sqlite3
+import sys
+from collections import OrderedDict
+from random import randrange
 
 
 def AddToDeck(cards, limit, deck_main):

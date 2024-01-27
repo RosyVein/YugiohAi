@@ -1,28 +1,26 @@
+import csv
 import datetime
 import glob
 import math
+import numpy as np
 import os
+import pickle
+import random
 import shutil
 import sqlite3
 import string
 import subprocess
 import sys
 import time
-import random
 import typing
-import csv
-import numpy as np
-import pickle
-
+from pathlib import Path
 from scipy.linalg import lstsq
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier, MLPRegressor
-
 from sys import platform
-from pathlib import Path
 
 TrainData = not (len(sys.argv) > 1 and ("--s" in sys.argv or "-s" in sys.argv))
 ShowData = True

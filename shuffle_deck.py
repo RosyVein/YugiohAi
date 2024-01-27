@@ -1,5 +1,7 @@
 import os
-import random, os, sys
+import os
+import random
+import sys
 
 filePath = os.getcwd() + '/WindBot-Ignite-master/bin/Debug/Decks/' + sys.argv[1]
 

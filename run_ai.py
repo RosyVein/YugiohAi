@@ -1,4 +1,6 @@
-import sys, subprocess, os
+import os
+import subprocess
+import sys
 
 os.chdir(os.getcwd() + '/WindBot-Ignite-master/bin/Debug')
 

@@ -1,35 +1,33 @@
+import csv
 import datetime
+import glob
 import glob
 import json
 import math
+import numpy as np
 import os
+import pickle
+import random
 import shutil
 import sqlite3
 import string
 import subprocess
 import sys
+import tensorflow as tf
 import time
-import random
 import typing
-import csv
-from typing import Any
-import numpy as np
-import pickle
-import glob
-
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from keras import optimizers
+from keras.layers import Dense, Flatten
+from keras.models import Sequential
+from keras.models import load_model
 from scipy.linalg import lstsq
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
-
-import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense, Flatten
-from keras.models import load_model
-from keras import optimizers
+from typing import Any
 
 action_data = None
 compare_count = 0

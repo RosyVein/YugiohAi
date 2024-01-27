@@ -161,7 +161,9 @@ The parameters are same as commandlines, but low cased.
 - Add `GetMatchingCards`, `GetFirstMatchingCard`, `IsExistingMatchingCard`
 - Add `ExecutorType.GoToBattlePhase`, `ExecutorType.GoToMainPhase2`, `ExecutorType.GoToEndPhase`
 -
+
 Add `DefaultScapegoat`, `DefaultMaxxC`, `DefaultAshBlossomAndJoyousSpring`, `DefaultGhostOgreAndSnowRabbit`, `DefaultGhostBelleAndHauntedMansion`, `DefaultEffectVeiler`, `DefaultCalledByTheGrave`, `DefaultInfiniteImpermanence`
+
 - Rename `AIFunctions` to `AIUtil` (Usage: `AI.Utils.` -> `Util.`)
 - Rename `AIFunctions.CompareCardAttack` to `CardContainer.CompareCardAttack`
 - Update `Util.SelectPreferredCards` and `Util.CheckSelectCount` to return the result

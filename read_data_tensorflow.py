@@ -1,38 +1,36 @@
+import csv
 import datetime
 import glob
 import math
+import numpy as np
 import os
+import pickle
+import random
 import shutil
 import sqlite3
 import string
 import subprocess
 import sys
+import tensorflow as tf
 import time
-import random
 import typing
-import csv
-import numpy as np
-import pickle
-
+from keras import optimizers
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.layers import Dense, Dropout
+from keras.models import Sequential
+from keras.models import load_model
+from pathlib import Path
 from scipy.linalg import lstsq
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier, MLPRegressor
-
-import tensorflow as tf
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from keras.models import Sequential
-from keras.layers import Dense, Dropout
-from keras.models import load_model
-from keras import optimizers
-
 from sys import platform
-from pathlib import Path
 
 TrainData = not (len(sys.argv) > 1 and ("--s" in sys.argv or "-s" in sys.argv))
 ShowData = True
+
 
 class Action:
     def __init__(self, id, name, action) -> None:
@@ -133,7 +131,8 @@ def read_data():
             field_state[id] = []
         field_state[id].append(FieldState(record[0], record[1], record[2]))
 
-    c.execute('SELECT rowid, GameId, TurnId, ActionId, CurP1Hand, CurP1Field, CurP2Hand, CurP2Field, PostP1Hand, PostP1Field, PostP2Hand, PostP2Field, Result FROM L_PlayRecord')
+    c.execute(
+        'SELECT rowid, GameId, TurnId, ActionId, CurP1Hand, CurP1Field, CurP2Hand, CurP2Field, PostP1Hand, PostP1Field, PostP2Hand, PostP2Field, Result FROM L_PlayRecord')
     records = c.fetchall()
     for record in records:
         play_record[record[0]] = PlayRecord(record[0], record[1], record[2], record[3], record[4], record[5], record[6],

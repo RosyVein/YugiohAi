@@ -1,9 +1,9 @@
-from argparse import Action
 import math
+import networkx as nx
 import os
 import sqlite3
+from argparse import Action
 from pyvis.network import Network
-import networkx as nx
 
 conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
 c = conn.cursor()
