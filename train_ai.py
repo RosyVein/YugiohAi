@@ -18,6 +18,7 @@ from keras.models import load_model
 from pathlib import Path
 from sys import platform
 from threading import Thread
+import matplotlib.pyplot as plt
 
 import get_action_weights_tensorflow as get_action_weights
 import read_data_tensorflow as read_game_data
@@ -30,8 +31,8 @@ AIMaster = 'Master'
 deck1 = 'AI_Random1.ydk'
 deck2 = 'AI_Random2.ydk'
 
-totalGames = 30  # why use this
-generations = 30
+totalGames = 100  # it is roundlimit!?!?
+generations = 100
 
 rolloutCount = 1
 isFirst = True
@@ -44,8 +45,8 @@ reset = False
 
 
 def isrespondingPID(PID):
-    # if platform == "linux" or platform == "linux2":
-    return True
+    if platform == "linux" or platform == "linux2":
+        return True
 
     # https://stackoverflow.com/questions/16580285/how-to-tell-if-process-is-responding-in-python-on-windows
     os.system('tasklist /FI "PID eq %d" /FI "STATUS eq running" > tmp.txt' % PID)
@@ -149,7 +150,7 @@ def runAi(Deck="Random1",
                           "Hand=" + str(Hand),
                           "IsTraining=" + str(IsTraining),
                           "ShouldUpdate=" + str(ShouldUpdate),
-                          "TotalGames=" + str(TotalGames),
+                          # "TotalGames=" + str(TotalGames),
                           "RolloutCount=" + str(RolloutCount),
                           "IsFirst=" + str(IsFirst),
                           "WinsThreshold=" + str(WinsThreshold),
@@ -172,7 +173,6 @@ def shuffle_deck(deck_name):
     side = []
     part = 0
     for line in f.readlines():
-
         if "#extra" in line:
             part = 1
             continue
@@ -198,7 +198,7 @@ def shuffle_deck(deck_name):
     f.close()
 
     f = open(filePath, "w")
-    f.write("#created by deck_maker_ai\n")
+    # f.write("#created by deck_maker_ai\n")
 
     f.write("#main\n")
     for i in main:
@@ -226,15 +226,12 @@ def setup():
 
     resetYgoPro()
 
-    if not isTraining or True:
-        AI2Deck = AIMaster
+    # if not isTraining or True:
+    AI2Deck = AIMaster
 
 
 def main_game_runner(isTraining, totalGames, Id1, Id2):
     start = time.time()
-
-    # subprocess.Popen - does not wait to finish
-    # subprocess.run - waits to finish
 
     file_path = os.getcwd() + "/edopro_bin/ygopro.exe"
 
@@ -263,6 +260,7 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
                )
     time.sleep(1)
 
+
     print("	runningAi2 " + str(Id2))
     p2 = runAi(Deck=AI2Deck,
                Name=AI2Deck,
@@ -283,7 +281,7 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
     if (not (p1.poll() == None or p2.poll() == None)):
         print("	WARNING! AI is not running")
 
-    timeout = 100
+    timeout = 60
     AIstarttime = time.time()
 
     while (p1.poll() == None and p2.poll() == None):
@@ -303,16 +301,43 @@ def main_game_runner(isTraining, totalGames, Id1, Id2):
     print("Time Past:" + str(datetime.timedelta(seconds=int(end - start))))
     print("Average Game Time:" + str(datetime.timedelta(seconds=int((end - start) / (totalGames)))))
 
+def get_win(execution_id=0):
+    win = 0
+
+    conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
+    c = conn.cursor()
+
+    c.execute('SELECT DISTINCT GameId, Result FROM L_PlayRecord')
+    records = c.fetchall()
+    for record in records[execution_id:]:
+        if record[1] == 1:
+            win += 1
+
+    conn.close()
+
+    return win, len(records) - execution_id
+
+def make_graph(list, title, xlabel, ylabel):
+    x = range(len(list))
+    fig, ax = plt.subplots()
+    ax.plot(x, list)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.show()
+
 
 def main():
     global reset, totalGames, generations
     parseArg()
     setup()
 
+    allgame = 0
+    winlog = []
+    winratelog = []
     for g in range(generations):
         read_game_data.read_data()
         get_action_weights.load_data()
-        # resetDB()
         proc = multiprocessing.Process(target=get_action_weights.run_server, args=())
         proc.start()
 
@@ -322,8 +347,17 @@ def main():
 
         proc.terminate()  # sends a SIGTERM
         print("done cycle")
+        win, game = get_win(allgame)
+        if game == 0:
+            print("No game recorded")
+            continue
+        allgame += game
+        print("Win:" + str(win) + " Game:" + str(game) + " Win Rate:" + str(win / game * 100) + "%")
+        winlog.append(win)
+        winratelog.append(win / game * 100)
+    make_graph(winlog, "Win", "Generation", "")
+    make_graph(winratelog, "Win Rate", "Generation", "")
     read_game_data.read_data()
-
 
 if __name__ == "__main__":
     main()

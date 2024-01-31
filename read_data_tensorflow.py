@@ -28,6 +28,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sys import platform
 
+from tensorflow.keras.optimizers import Adam
+
 TrainData = not (len(sys.argv) > 1 and ("--s" in sys.argv or "-s" in sys.argv))
 ShowData = True
 
@@ -102,8 +104,6 @@ def read_data():
 
     conn = sqlite3.connect(os.getcwd() + '/cardData.cdb')
     c = conn.cursor()
-
-    # c.execute('SELECT rowid, Name, Action FROM L_ActionList where Output = ?', (node_id,))
 
     c.execute('SELECT rowid, Name, Action FROM L_ActionList')
     records = c.fetchall()
@@ -322,26 +322,30 @@ def read_data():
             yc_train = yc_test = critic_answer
         else:
             x_train, x_test, y_train, y_test = train_test_split(data, answer, test_size=0.3)
-            xc_train, xc_test, yc_train, yc_test = train_test_split(data, critic_answer, test_size=0.3)
+            xc_train, xc_test, yc_train, yc_test = train_test_split(data, critic_answer, test_size=0.2)
 
-        batch_size = 64
-        epochs = 500
+        batch_size = 128
+        epochs = 300
 
         model = Sequential()
         model.add(Dense(256, activation='relu', input_shape=(input_length,)))
-        model.add(Dropout(0.4))
+        model.add(Dropout(0.3))
         model.add(Dense(128, activation='relu'))
-        model.add(Dropout(0.4))
+        model.add(Dropout(0.2))
         model.add(Dense(output_length + 1, activation='sigmoid'))
 
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-        early_stopping = EarlyStopping(monitor='val_loss', patience=10)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=20)
         reduce_lr = ReduceLROnPlateau(
             monitor='val_loss',
-            factor=0.2,
+            factor=0.5,
             patience=5,
-            min_lr=0.001)
+            min_lr=0.0001,
+            verbose=1
+        )
+
+        # model.summary()
 
         history = model.fit(
             x_train, y_train,
